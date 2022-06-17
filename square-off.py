@@ -83,15 +83,13 @@ class SquareOff(QWidget):
 
             # Occupied square selected, Same Turn
             else:
-
-                pass
+                self.__grid_lines = not self.__grid_lines
 
         else: # Check for line toggle buttons
             for player in self.__board.players:
                 if player.inside_tile(mpx, mpy):
                     player.line_toggle = not player.line_toggle
-                    print(player.line_toggle)
-            self.__grid_lines = True#not self.__grid_lines
+
 
         self.update()
 
@@ -104,6 +102,6 @@ if __name__ == '__main__':
       board = Board(size=size, num_players=num_players)
   except:
       board = Board()
-      
+
   ex = SquareOff(board)
   sys.exit(app.exec_())
