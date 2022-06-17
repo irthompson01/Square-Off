@@ -53,6 +53,10 @@ class SquareOff(QWidget):
         qp.setPen(self.__blackPen)
         self.__board.display_score(qp)
 
+        # Draw Line Toggle Buttons
+
+        self.__board.draw_line_toggle(qp)
+
         qp.end()
 
     def mousePressEvent(self, event):
@@ -60,6 +64,8 @@ class SquareOff(QWidget):
         mpx = event.x()
         mpy = event.y()
 
+
+        # Check if inside playing grid
         if self.__board.is_inside_grid(mpx, mpy):
 
             is_valid = self.__board.grid_click(mpx, mpy)
@@ -77,15 +83,27 @@ class SquareOff(QWidget):
 
             # Occupied square selected, Same Turn
             else:
+
                 pass
 
-        else:
-            self.__grid_lines = not self.__grid_lines
+        else: # Check for line toggle buttons
+            for player in self.__board.players:
+                if player.inside_tile(mpx, mpy):
+                    player.line_toggle = not player.line_toggle
+                    print(player.line_toggle)
+            self.__grid_lines = True#not self.__grid_lines
 
         self.update()
 
 if __name__ == '__main__':
   app = QApplication(sys.argv)
-  board = Board(size=10, tile_length=75, num_players=4)
+
+  try:
+      size = int(sys.argv[1])
+      num_players = int(sys.argv[2])
+      board = Board(size=size, num_players=num_players)
+  except:
+      board = Board()
+      
   ex = SquareOff(board)
   sys.exit(app.exec_())

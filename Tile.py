@@ -3,7 +3,7 @@
 ### -> QRect
 ###
 from PyQt5.QtCore import Qt, QRect, QLine
-from Score import Score
+#from Score import Score
 
 class Tile:
 

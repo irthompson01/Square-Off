@@ -14,10 +14,11 @@ A Board
 
 class Board:
 
-    def __init__(self, size, tile_length, num_players):
+    def __init__(self, size=8, num_players=2):
+        self.total_width = 800
         self.width = size
         self.height = size
-        self.tile_length = tile_length
+        self.tile_length = self.total_width / size
         self.origin_x = 100
         self.origin_y = 100
         self.num_players = num_players
@@ -28,7 +29,7 @@ class Board:
         #         [24, 48, 40]
         # ]
         self.colors = [list(np.random.choice(range(255),size=3)) for i in range(num_players)]
-        self.players = [Score(str(i), self.colors[i-1]) for i in range(1, num_players+1)]
+        self.players = [Score(i, self.colors[i]) for i in range(0, num_players)]
         self.current_player = self.players[0]
 
         self.grid = [[Tile(self.origin_x + (self.tile_length*i), self.origin_y+ (self.tile_length*j), self.tile_length)
@@ -58,6 +59,19 @@ class Board:
         for row in self.grid:
             for tile in row:
                 qp.drawRect(tile.QRect)
+
+    def draw_line_toggle(self, qp):
+        for player in self.players:
+            pen = QPen()
+            pen.setColor(player.outline_color)
+            pen.setWidth(3)
+            pen.setJoinStyle(Qt.RoundJoin)
+            qp.setPen(pen)
+            #rect = QRect(950+(100*self.players.index(player)), 100, 100, 100)
+            qp.drawRect(player.line_tile.QRect)
+            if player.line_toggle:
+                qp.fillRect(player.line_tile.QRect, player.fill_color)
+
 
     def color_tiles(self, qp):
         #Loop through self.grid and fillRect as
@@ -117,14 +131,15 @@ class Board:
 
     def draw_boxes(self, qp):
         for player in self.players:
-            for box in player.boxes:
-                pen = QPen()
-                pen.setColor(player.outline_color)
-                pen.setWidth(5)
-                pen.setStyle(Qt.DashLine)
-                pen.setJoinStyle(Qt.RoundJoin)
-                qp.setPen(pen)
-                box.draw_box(qp)
+            if player.line_toggle:
+                for box in player.boxes:
+                    pen = QPen()
+                    pen.setColor(player.outline_color)
+                    pen.setWidth(5)
+                    pen.setStyle(Qt.DashLine)
+                    pen.setJoinStyle(Qt.RoundJoin)
+                    qp.setPen(pen)
+                    box.draw_box(qp)
 
     def update_score(self):
         mult = self.current_player.squares_formed
@@ -148,4 +163,7 @@ class Board:
     def display_score(self, qp):
         qp.setFont(QFont("Times", 15))
         for player in self.players:
-            qp.drawText(1050, 300+(100*self.players.index(player)), player.get_stats())
+            if player == self.current_player:
+                qp.fillRect(950, 265+(100*self.players.index(player)), 500, 50, player.fill_color)
+
+            qp.drawText(1000, 300+(100*self.players.index(player)), player.get_stats())

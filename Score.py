@@ -1,19 +1,33 @@
 from PyQt5.QtGui import QPainter, QPen, QBrush, QFont, QColor
+from PyQt5.QtCore import Qt, QRect, QLine
+from Tile import Tile
 import math
 
 class Score:
 
   def __init__(self, player_name, color = [0,0,0]):
-    self.__player_name = str(player_name)
+    self.__player_name = str(player_name+1)
     self.__current_score = 0
     self.__current_level = 0
     self.__current_multiplier = 1
     self.__lives_remaining = 3
     self.__show_boxes = True
+    self.line_toggle = True
+    self.line_tile = Tile(950+(100*player_name), 100, 100)
     self.squares_formed = 0
     self.boxes = []
     self.outline_color = QColor(color[0], color[1], color[2], 200)
     self.fill_color = QBrush(QColor(color[0], color[1], color[2], 150))
+
+  def inside_tile(self, mpx, mpy):
+      if mpx >= self.line_tile.origin_x and \
+        mpx <= (self.line_tile.origin_x + self.line_tile.length) and \
+         mpy >= self.line_tile.origin_y and \
+          mpy <= (self.line_tile.origin_y + self.line_tile.length):
+          return True
+      else:
+          return False
+
 
   def add_points(self, amount):
     self.__current_score += (self.__current_multiplier)*amount
