@@ -8,11 +8,15 @@ from Board import Board
 from Tile import Tile
 from Box import Box
 
+# https://developer.mozilla.org/en-US/docs/Games/Introduction
+
 class SquareOff(QWidget):
 
     def __init__(self, board):
       super().__init__()
       self.__board = board
+      self.__sounds = [sound.WaveObject.from_wave_file('sounds/button.wav'),sound.WaveObject.from_wave_file('sounds/Chime.wav')]
+
       self.__gradients = [QGradient(16), # Deep Blue - 0
                             QGradient(34), # Lemon Gate - 1
                             QGradient(107), # Confident Cloud - 2
@@ -35,7 +39,7 @@ class SquareOff(QWidget):
         qp = QPainter()
         qp.begin(self)
         # https://webgradients.com/
-        qp.fillRect(0, 0, 1500, 1000, self.__gradients[6])
+        qp.fillRect(0, 0, 1500, 1000, self.__gradients[2])
         #qp.fillRect(1000, 0, 1500, 1000, self.__gradients[1])
 
         # fill tiles
@@ -43,19 +47,27 @@ class SquareOff(QWidget):
 
         # Draw grid
         if self.__grid_lines is True:
-            qp.setPen(self.__blackPen)
+            pen = QPen()
+            pen.setColor(QColor(70,70,70))
+            pen.setWidth(2)
+            qp.setPen(pen)
             self.__board.draw_grid(qp)
 
         # Draw Boxes
         self.__board.draw_boxes(qp)
+
+        # Draw New Boxes
+        self.__board.draw_new_boxes(qp)
 
         # Display Score
         qp.setPen(self.__blackPen)
         self.__board.display_score(qp)
 
         # Draw Line Toggle Buttons
-
         self.__board.draw_line_toggle(qp)
+
+        # Draw Reset Tile
+        self.__board.draw_reset_box(qp)
 
         qp.end()
 
@@ -64,6 +76,9 @@ class SquareOff(QWidget):
         mpx = event.x()
         mpy = event.y()
 
+        # Check if reset board
+        if self.__board.is_inside_reset(mpx, mpy):
+            self.__board.reset_board()
 
         # Check if inside playing grid
         if self.__board.is_inside_grid(mpx, mpy):
@@ -72,8 +87,16 @@ class SquareOff(QWidget):
 
             # Checking if the square selected is not occupied
             if is_valid:
-                # Loof for new boxes formed
+                # Play button click
+                self.__sounds[0].play()
+
+                # Loop for new boxes formed
                 self.__board.find_new_boxes()
+
+                # Play new box chime if new squares are formed
+                if len(self.__board.current_player.new_boxes) > 0:
+                    self.__sounds[1].play()
+                    self.__board.current_player.line_toggle = True
 
                 # Update Score
                 self.__board.update_score()
