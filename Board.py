@@ -29,7 +29,7 @@ class Board:
                 [100, 24, 130]
         ]
         # self.colors = [list(np.random.choice(range(255),size=3)) for i in range(num_players)]
-        self.reset_tile = Tile(1300, 800, self.tile_length)
+        self.reset_tile = Tile(1300, 800, 100)
         self.players = [Score(i, self.colors[i]) for i in range(0, self.num_players)]
         self.current_player = self.players[0]
 
@@ -89,6 +89,7 @@ class Board:
                     qp.fillRect(tile.QRect, player.fill_color)
 
     def find_new_boxes(self):
+        self.current_player.score_increase = 0
         for size in self.all_boxes:
             for box in size:
                 if box.check_ownership():
@@ -183,6 +184,7 @@ class Board:
         for i in range(0, mult):
             points = self.current_player.boxes[i].points
             #print("Points: ", points)
+            self.current_player.score_increase += (self.current_player.get_multiplier()*points)
             self.current_player.add_points(points)
 
 
@@ -191,11 +193,12 @@ class Board:
 
     def display_score(self, qp):
         qp.setFont(QFont("Times", 15))
+
         for player in self.players:
             if player == self.current_player:
-                qp.fillRect(950, 265+(100*self.players.index(player)), 500, 50, player.fill_color)
+                qp.fillRect(950, 265+(100*self.players.index(player)), 420, 50, player.fill_color)
+            qp.drawText(975, 300+(100*self.players.index(player)), player.get_stats())
 
-            qp.drawText(1000, 300+(100*self.players.index(player)), player.get_stats())
 
     def draw_reset_box(self, qp):
         pen = QPen()

@@ -1,21 +1,25 @@
 import sys, copy
+import os
 import simpleaudio as sound
 from PyQt5.QtGui import QPainter, QPen, QBrush, QFont, QColor, QGradient
 from PyQt5.QtWidgets import QWidget, QApplication
-from PyQt5.QtCore import Qt, QRect, QLine
+from PyQt5.QtCore import Qt, QRect, QLine, QPoint
 from Score import Score
 from Board import Board
 from Tile import Tile
 from Box import Box
 
 # https://developer.mozilla.org/en-US/docs/Games/Introduction
+cwd = os.getcwd()
 
 class SquareOff(QWidget):
 
     def __init__(self, board):
       super().__init__()
       self.__board = board
-      self.__sounds = [sound.WaveObject.from_wave_file('sounds/button.wav'),sound.WaveObject.from_wave_file('sounds/Chime.wav')]
+      self.__sounds = [sound.WaveObject.from_wave_file(cwd+'/sounds/button.wav'),
+                        sound.WaveObject.from_wave_file(cwd+'/sounds/Chime.wav'),
+                        sound.WaveObject.from_wave_file(cwd+'/sounds/fart-01.wav')]
 
       self.__gradients = [QGradient(16), # Deep Blue - 0
                             QGradient(34), # Lemon Gate - 1
@@ -40,6 +44,7 @@ class SquareOff(QWidget):
         qp.begin(self)
         # https://webgradients.com/
         qp.fillRect(0, 0, 1500, 1000, self.__gradients[2])
+        #print("Yeah--", os.path.dirname(sys.executable))
         #qp.fillRect(1000, 0, 1500, 1000, self.__gradients[1])
 
         # fill tiles
@@ -52,6 +57,13 @@ class SquareOff(QWidget):
             pen.setWidth(2)
             qp.setPen(pen)
             self.__board.draw_grid(qp)
+            # Draw Medians
+            pen.setWidth(5)
+            qp.setPen(pen)
+            qp.drawRect(QRect(self.__board.origin_x, self.__board.origin_y, self.__board.total_width, self.__board.total_width))
+            qp.drawLine(QPoint(self.__board.origin_x, (self.__board.origin_y+(self.__board.total_width/2))), QPoint(self.__board.origin_x+self.__board.total_width,(self.__board.origin_y+(self.__board.total_width/2))))
+            qp.drawLine(QPoint((self.__board.origin_x+(self.__board.total_width/2)), self.__board.origin_y), QPoint((self.__board.origin_x+(self.__board.total_width/2)), self.__board.origin_y+self.__board.total_width))
+
 
         # Draw Boxes
         self.__board.draw_boxes(qp)
@@ -78,6 +90,7 @@ class SquareOff(QWidget):
 
         # Check if reset board
         if self.__board.is_inside_reset(mpx, mpy):
+            self.__sounds[2].play()
             self.__board.reset_board()
 
         # Check if inside playing grid

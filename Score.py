@@ -12,8 +12,9 @@ class Score:
     self.__current_multiplier = 1
     self.__lives_remaining = 3
     self.__show_boxes = True
+    self.score_increase = 0
     self.line_toggle = True
-    self.line_tile = Tile(950+(100*player_name), 100, 100)
+    self.line_tile = Tile(950+(105*player_name), 100, 100)
     self.squares_formed = 0
     self.boxes = []
     self.new_boxes = []
@@ -81,7 +82,7 @@ class Score:
     return self.__player_name
 
   def get_stats(self):
-    return 'Player: ' + str(self.__player_name) + ', ' + 'Score: ' + str(int(self.__current_score)) + ', ' + 'Multiplier: '+ str(self.__current_multiplier)
+    return 'Player: ' + str(self.__player_name) + ' | ' + 'Score: ' + str(int(self.__current_score)) + '  +'+ str(int(self.score_increase)) + ' | ' + 'x'+ str(self.__current_multiplier)
 
 
   def __str__(self):
